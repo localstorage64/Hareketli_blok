@@ -9,10 +9,19 @@
   window.addEventListener("resize", resize);
   resize();
 
-  const size = 52;
-  let x = window.innerWidth / 2 - size / 2;
-  let y = window.innerHeight / 2 - size / 2;
-  let vx = 0, vy = 0; // hız vektörü
+  // 1000 adet minicik kare
+  const particles = [];
+  const count = 1000;
+  const size = 4; // kare boyutu
+
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      vx: 0,
+      vy: 0
+    });
+  }
 
   const friction = 0.98; // sürtünme
   const accel = 0.5;     // sensör hassasiyet
@@ -21,24 +30,26 @@
     ctx.fillStyle = "blue"; // arka plan
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = "red"; // kare
-    ctx.fillRect(x, y, size, size);
+    ctx.fillStyle = "red"; // kareler kırmızı
+    for (const p of particles) {
+      ctx.fillRect(p.x, p.y, size, size);
+    }
   }
 
   function update() {
-    // hız uygula
-    x += vx;
-    y += vy;
+    for (const p of particles) {
+      p.x += p.vx;
+      p.y += p.vy;
 
-    // sürtünme
-    vx *= friction;
-    vy *= friction;
+      p.vx *= friction;
+      p.vy *= friction;
 
-    // sınırlar
-    if (x < 0) { x = 0; vx = -vx * 0.5; }
-    if (y < 0) { y = 0; vy = -vy * 0.5; }
-    if (x > window.innerWidth - size) { x = window.innerWidth - size; vx = -vx * 0.5; }
-    if (y > window.innerHeight - size) { y = window.innerHeight - size; vy = -vy * 0.5; }
+      // sınırlar
+      if (p.x < 0) { p.x = 0; p.vx = -p.vx * 0.5; }
+      if (p.y < 0) { p.y = 0; p.vy = -p.vy * 0.5; }
+      if (p.x > window.innerWidth - size) { p.x = window.innerWidth - size; p.vx = -p.vx * 0.5; }
+      if (p.y > window.innerHeight - size) { p.y = window.innerHeight - size; p.vy = -p.vy * 0.5; }
+    }
   }
 
   function loop() {
@@ -49,16 +60,21 @@
 
   // Telefon sensörleri
   window.addEventListener("deviceorientation", (e) => {
-    // gamma: sağ-sol eğim, beta: öne-arkaya eğim
-    vx += e.gamma * accel * 0.01;
-    vy += e.beta * accel * 0.01;
+    const ax = e.gamma * accel * 0.01;
+    const ay = e.beta * accel * 0.01;
+    for (const p of particles) {
+      p.vx += ax;
+      p.vy += ay;
+    }
   });
 
-  // Mouse test (PC için): kareyi hızla itmek
+  // Mouse test (PC için)
   canvas.addEventListener("mousemove", (e) => {
     if (e.buttons) {
-      vx += (e.movementX) * 0.2;
-      vy += (e.movementY) * 0.2;
+      for (const p of particles) {
+        p.vx += e.movementX * 0.02;
+        p.vy += e.movementY * 0.02;
+      }
     }
   });
 
