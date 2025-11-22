@@ -14,16 +14,16 @@
   let y = window.innerHeight / 2 - size / 2;
   let targetX = x;
   let targetY = y;
-  let touching = false;
+  let dragging = false;
 
   const followSpeed = 12;
   let lastTime = performance.now();
 
   function draw() {
-    ctx.fillStyle = "blue"; // arka plan mavi
+    ctx.fillStyle = "blue"; // arka plan
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = "red"; // kare kırmızı
+    ctx.fillStyle = "red"; // kare
     ctx.fillRect(x, y, size, size);
   }
 
@@ -48,30 +48,30 @@
 
   // Dokunma
   canvas.addEventListener("touchstart", (e) => {
-    touching = true;
+    dragging = true;
     setTarget(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
     e.preventDefault();
   }, { passive: false });
 
   canvas.addEventListener("touchmove", (e) => {
-    if (!touching) return;
+    if (!dragging) return;
     setTarget(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
     e.preventDefault();
   }, { passive: false });
 
-  canvas.addEventListener("touchend", () => { touching = false; });
-  canvas.addEventListener("touchcancel", () => { touching = false; });
+  canvas.addEventListener("touchend", () => { dragging = false; });
+  canvas.addEventListener("touchcancel", () => { dragging = false; });
 
-  // Mouse desteği
+  // Mouse
   canvas.addEventListener("mousedown", (e) => {
-    touching = true;
+    dragging = true;
     setTarget(e.clientX, e.clientY);
   });
   canvas.addEventListener("mousemove", (e) => {
-    if (!touching) return;
+    if (!dragging) return;
     setTarget(e.clientX, e.clientY);
   });
-  canvas.addEventListener("mouseup", () => { touching = false; });
+  canvas.addEventListener("mouseup", () => { dragging = false; });
 
   requestAnimationFrame(loop);
 })();
