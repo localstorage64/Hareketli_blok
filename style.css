@@ -1,0 +1,14 @@
+* { box-sizing: border-box; }
+html, body {
+  height: 100%;
+  margin: 0;
+  background: #0d0f14;
+  touch-action: none; /* dokunma jestleri (scroll/zoom) kapat */
+}
+#game {
+  position: fixed;
+  inset: 0;
+  display: block;
+  background:
+    radial-gradient(900px 700px at 50% 50%, #131a2a 0%, #0d0f14 60%, #0a0c12 100%);
+}
