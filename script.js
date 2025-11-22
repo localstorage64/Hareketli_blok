@@ -9,15 +9,15 @@
   window.addEventListener("resize", resize);
   resize();
 
-  // 1000 adet minicik kare
+  // 3000 adet minicik kare
   const particles = [];
-  const count = 1000;
-  const size = 4; // kare boyutu
+  const count = 3000;
+  const size = 3; // kare boyutu
 
   for (let i = 0; i < count; i++) {
     particles.push({
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
+      x: Math.random() * (window.innerWidth - size),
+      y: Math.random() * (window.innerHeight - size),
       vx: 0,
       vy: 0
     });
@@ -44,7 +44,7 @@
       p.vx *= friction;
       p.vy *= friction;
 
-      // sınırlar
+      // sınırlar — dışarı çıkamazlar
       if (p.x < 0) { p.x = 0; p.vx = -p.vx * 0.5; }
       if (p.y < 0) { p.y = 0; p.vy = -p.vy * 0.5; }
       if (p.x > window.innerWidth - size) { p.x = window.innerWidth - size; p.vx = -p.vx * 0.5; }
