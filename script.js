@@ -9,10 +9,10 @@
   window.addEventListener("resize", resize);
   resize();
 
-  // 3000 adet minicik kare
+  // 30.000 adet minicik kare
   const particles = [];
-  const count = 3000;
-  const size = 3; // kare boyutu
+  const count = 30000;
+  const size = 2; // kare boyutu
 
   for (let i = 0; i < count; i++) {
     particles.push({
@@ -27,7 +27,7 @@
   const accel = 0.5;     // sensör hassasiyet
 
   function draw() {
-    ctx.fillStyle = "blue"; // arka plan
+    ctx.fillStyle = "lightblue"; // arka plan
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     ctx.fillStyle = "red"; // kareler kırmızı
