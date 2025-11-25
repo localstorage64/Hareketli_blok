@@ -1,13 +1,22 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>30.000 Kum Kareleri</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Pixel Spam Panel</title>
+  <style>
+    body { margin:0; background:#000; }
+    iframe {
+      width: 100vw;
+      height: 100vh;
+      border: none;
+    }
+  </style>
 </head>
 <body>
-  <canvas id="game"></canvas>
+  <!-- Pixeland siteyi iframe içinde açıyoruz -->
+  <iframe id="pixelFrame" src="https://pixeland.fun/"></iframe>
+
+  <!-- script.js dosyasını dahil ediyoruz -->
   <script src="script.js"></script>
 </body>
 </html>
