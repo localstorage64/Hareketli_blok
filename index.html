@@ -1,563 +1,181 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>hareketliBlok Chat</title>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Chat</title>
   <style>
-    /* Global reset and base styles */
-    * { margin:0; padding:0; box-sizing:border-box; font-family:Arial, sans-serif; }
-    html, body { height:100%; background:#2c2f33; color:#fff; overflow:hidden; }
-
-    /* Star background */
-    body::before {
-      content:"";
-      position:fixed; top:0; left:0; width:100%; height:100%;
-      background: radial-gradient(2px 2px, #fff, #fff0) repeat;
-      background-size: 20px 20px;
-      animation: stars 60s linear infinite;
-      z-index:-1;
-    }
-    @keyframes stars { 0%{background-position:0 0;} 100%{background-position:-10000px 0;} }
-
-    /* Login page */
-    #loginPage {
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      height:100vh;
-      flex-direction:column;
-      gap:8px;
-    }
-    #loginPage input, #loginPage button {
-      width:280px; padding:10px; border-radius:6px; border:none;
-      background:#23272a; color:#fff;
-    }
-    #loginPage button {
-      background:#7289da; cursor:pointer;
-    }
-    #loginPage button:hover { filter:brightness(1.1); }
-    #captchaText { font-weight:bold; }
-
-    /* Chat page layout */
-    #chatPage {
-      display:none;
-      height:100vh; width:100%;
-      flex-direction:row;
-    }
-
-    /* Sidebar for users */
-    #sidebar {
-      width:240px; background:#23272a; padding:12px; overflow-y:auto;
-      border-right:1px solid #1f2124;
-    }
-    #sidebar h3 { margin-bottom:10px; }
-    #userList { list-style:none; padding:0; display:flex; flex-direction:column; gap:6px; }
-    #userList li { padding:6px 8px; background:#2c2f33; border-radius:6px; }
-
-    /* Chat container */
-    #chatContainer {
-      flex:1; display:flex; flex-direction:column; padding:12px;
-    }
-    #chatHeader {
-      display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;
-    }
-    #chatBox {
-      flex:1; background:#2c2f33; border-radius:8px; overflow-y:auto; padding:10px; margin-bottom:10px;
-      border:1px solid #1f2124;
-    }
-
-    /* Message bubbles */
-    .message {
-      padding:10px 12px; border-radius:12px; margin-bottom:8px; max-width:70%;
-      word-wrap:break-word; position:relative; line-height:1.35;
-    }
-    .message.mine { background:#7289da; margin-left:auto; }
-    .message.other { background:#99aab5; margin-right:auto; color:#141414; }
-    .message.system { background:#ff9f1c; color:#000; text-align:center; font-weight:bold; max-width:100%; }
-    .message .user { font-weight:bold; margin-right:6px; }
-    .message-time { font-size:0.72em; color:#e1e1e1; position:absolute; right:8px; bottom:6px; }
-
-    /* Input row */
-    #inputRow {
-      display:flex; gap:8px;
-    }
-    #messageInput {
-      flex:1; padding:10px; border-radius:8px; border:none; background:#23272a; color:#fff;
-    }
-    #sendBtn {
-      padding:10px 16px; border-radius:8px; border:none; background:#43b581; color:#fff; cursor:pointer;
-    }
-    #sendBtn:hover { filter:brightness(1.1); }
-
-    /* Admin panel (draggable) */
-    #adminPanel {
-      display:none;
-      background:#23272a; padding:15px; border-radius:10px; position:absolute; top:60px; left:60px; width:300px;
-      cursor:move; box-shadow:0 0 20px rgba(0,0,0,0.5); border:1px solid #1f2124; z-index:10;
-    }
-    #adminPanel h3 { margin-bottom:10px; text-align:center; }
-    #adminPanel input, #adminPanel button {
-      width:100%; margin:6px 0; padding:8px; border-radius:6px; border:none;
-      background:#2c2f33; color:#fff;
-    }
-    #adminPanel button { background:#7289da; cursor:pointer; }
-    #adminPanel button.danger { background:#f04747; }
-    #adminPanel button:hover { filter:brightness(1.1); }
-
-    /* Rainbow admin name */
-    .rainbow {
-      background: linear-gradient(to right, red, orange, yellow, green, cyan, blue, violet);
-      -webkit-background-clip: text;
-      color: transparent;
-      animation: rainbowAnim 3s linear infinite;
-    }
-    @keyframes rainbowAnim { 0%{background-position:0%;} 100%{background-position:100%;} }
-
-    /* Utility */
-    .hidden { display:none !important; }
-    .row { display:flex; gap:8px; }
-    .center { display:flex; align-items:center; justify-content:center; }
+    *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
+    html,body{height:100%;overflow:hidden;background:#2c2f33;color:#fff;}
+    #loginPage{display:flex;justify-content:center;align-items:center;height:100vh;flex-direction:column;gap:10px;}
+    #loginPage input,#loginPage button{width:280px;padding:10px;border-radius:6px;border:none;}
+    #loginPage input{background:#23272a;color:#fff;}
+    #loginPage button{background:#7289da;color:#fff;cursor:pointer;}
+    #chatPage{display:none;height:100vh;width:100%;flex-direction:row;}
+    #sidebar{width:240px;background:#23272a;padding:12px;overflow-y:auto;border-right:1px solid #1f2124;}
+    #userList{list-style:none;padding:0;}
+    #chatContainer{flex:1;display:flex;flex-direction:column;padding:12px;}
+    #chatBox{flex:1;background:#2c2f33;border-radius:8px;overflow-y:auto;padding:10px;margin-bottom:10px;border:1px solid #1f2124;}
+    .message{padding:10px;border-radius:12px;margin-bottom:8px;max-width:70%;word-wrap:break-word;}
+    .message.mine{background:#7289da;margin-left:auto;}
+    .message.other{background:#99aab5;margin-right:auto;color:#141414;}
+    #inputRow{display:flex;gap:8px;}
+    #messageInput{flex:1;padding:10px;border-radius:8px;border:none;background:#23272a;color:#fff;}
+    #sendBtn{padding:10px 16px;border-radius:8px;border:none;background:#43b581;color:#fff;cursor:pointer;}
   </style>
-
-  <!-- Your Firebase config should be defined in config.js as: const firebaseConfig = { ... } -->
   <script src="config.js"></script>
-
-  <!-- Firebase v9 compat (App/Auth/Database) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
 <body>
 
-  <!-- Login Page -->
-  <div id="loginPage">
-    <h2 style="margin-bottom:8px;">Bayscord Chat</h2>
-    <input type="text" id="username" placeholder="Kullanıcı adı">
-    <input type="password" id="password" placeholder="Şifre">
-    <div class="row center">
-      <div>Captcha: <span id="captchaText" style="font-weight:bold;"></span></div>
-    </div>
-    <input type="number" id="captchaInput" placeholder="Toplama sonucu">
-    <button id="loginBtn">Giriş Yap</button>
-    <button id="registerBtn">Kayıt Ol</button>
-    <div id="loginError" class="hidden" style="color:#ff7b7b; margin-top:6px;"></div>
+<div id="loginPage">
+  <h2>Chat</h2>
+  <input type="text" id="username" placeholder="Kullanıcı adı" />
+  <input type="password" id="password" placeholder="Şifre" />
+  <button id="loginBtn">Giriş Yap</button>
+  <button id="registerBtn">Kayıt Ol</button>
+</div>
+
+<div id="chatPage">
+  <div id="sidebar">
+    <h3>Online Kullanıcılar</h3>
+    <ul id="userList"></ul>
+    <button id="logoutBtn">Çıkış</button>
   </div>
-
-  <!-- Chat Page -->
-  <div id="chatPage">
-    <!-- Sidebar: user list -->
-    <div id="sidebar">
-      <div class="row" style="justify-content:space-between; align-items:center;">
-        <h3>Online Kullanıcılar</h3>
-        <button id="logoutBtn" style="padding:6px 8px; border-radius:6px; border:none; background:#f04747; color:#fff; cursor:pointer;">Çıkış</button>
-      </div>
-      <ul id="userList"></ul>
-    </div>
-
-    <!-- Chat container -->
-    <div id="chatContainer">
-      <div id="chatHeader">
-        <div id="currentUserInfo">Kullanıcı: <span id="currentUserName">-</span></div>
-        <button id="adminToggleBtn" style="padding:8px 10px; border-radius:8px; border:none; background:#7289da; color:#fff; cursor:pointer;">Admin Panel</button>
-      </div>
-      <div id="chatBox"></div>
-      <div id="inputRow">
-        <input type="text" id="messageInput" placeholder="Mesaj yaz...">
-        <button id="sendBtn">Gönder</button>
-      </div>
+  <div id="chatContainer">
+    <div id="chatBox"></div>
+    <div id="inputRow">
+      <input type="text" id="messageInput" placeholder="Mesaj yaz..." />
+      <button id="sendBtn">Gönder</button>
     </div>
   </div>
+</div>
 
-  <!-- Admin Panel -->
-  <div id="adminPanel">
-    <h3>Admin Panel</h3>
-    <input type="text" id="targetUser" placeholder="Kullanıcı adı">
-    <input type="text" id="newPassword" placeholder="Yeni Şifre">
-    <button id="changePassBtn">Şifreyi Değiştir</button>
-    <button id="deleteAllBtn" class="danger">Tüm Mesajları Sil</button>
-    <button id="deleteTrollBtn" class="danger">Tacizci Kullanıcıları Sil</button>
-    <div style="font-size:12px; color:#ccc; margin-top:8px;">
-      //bse <mesaj> → Sistem duyurusu gönderir
-    </div>
-  </div>
+<script>
+  // Init Firebase (config.js içinde const firebaseConfig = { ... } olmalı)
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db   = firebase.database();
 
-  <script>
-    (function(){
-      // Initialize Firebase
-      firebase.initializeApp(firebaseConfig);
-      const auth = firebase.auth();
-      const db = firebase.database();
+  let currentUser = null;
 
-      // Elements
-      const loginPage = document.getElementById("loginPage");
-      const chatPage = document.getElementById("chatPage");
-      const loginBtn = document.getElementById("loginBtn");
-      const registerBtn = document.getElementById("registerBtn");
-      const logoutBtn = document.getElementById("logoutBtn");
-      const usernameInput = document.getElementById("username");
-      const passwordInput = document.getElementById("password");
-      const captchaText = document.getElementById("captchaText");
-      const captchaInput = document.getElementById("captchaInput");
-      const loginError = document.getElementById("loginError");
-      const chatBox = document.getElementById("chatBox");
-      const messageInput = document.getElementById("messageInput");
-      const sendBtn = document.getElementById("sendBtn");
-      const userList = document.getElementById("userList");
-      const adminPanel = document.getElementById("adminPanel");
-      const adminToggleBtn = document.getElementById("adminToggleBtn");
-      const changePassBtn = document.getElementById("changePassBtn");
-      const deleteAllBtn = document.getElementById("deleteAllBtn");
-      const deleteTrollBtn = document.getElementById("deleteTrollBtn");
-      const targetUserInput = document.getElementById("targetUser");
-      const newPasswordInput = document.getElementById("newPassword");
-      const currentUserNameEl = document.getElementById("currentUserName");
+  // Presence helpers
+  function setOnline(username){
+    db.ref("onlineUsers/"+username).set({online:true, at:Date.now()});
+    db.ref("onlineUsers/"+username).onDisconnect().remove();
+  }
+  function setOffline(username){
+    db.ref("onlineUsers/"+username).remove();
+  }
 
-      // State
-      let currentUser = null;
-      let captcha1 = 0, captcha2 = 0;
-      let lastMsgTime = 0;
-      const forbiddenWords = ["null"]; // extendable
-      const admins = ["localstorage", "bs287yaguz"]; // rainbow names
-      const vipUsers = ["VIPUser1", "VIPUser2"];     // orange badge
-      const displayedMessageKeys = new Set();        // prevent duplicate DOM
-      let isAdminVisible = false;
+  // UI helpers
+  function showChat(){
+    document.getElementById("loginPage").style.display = "none";
+    document.getElementById("chatPage").style.display  = "flex";
+    loadMessages();
+    loadUsers();
+  }
+  function showLogin(){
+    document.getElementById("chatPage").style.display  = "none";
+    document.getElementById("loginPage").style.display = "flex";
+  }
 
-      // Helpers
-      function generateCaptcha(){
-        captcha1 = Math.floor(Math.random()*5);
-        captcha2 = Math.floor(Math.random()*5);
-        captchaText.textContent = `${captcha1}+${captcha2}=?`;
-      }
-      function showError(text){
-        loginError.textContent = text;
-        loginError.classList.remove("hidden");
-        setTimeout(()=>loginError.classList.add("hidden"), 3000);
-      }
-      function isClean(text){
-        const lower = String(text || "").toLowerCase();
-        for(const w of forbiddenWords){
-          if(new RegExp("\\b" + w + "\\b", "gi").test(lower)) return false;
-        }
-        return true;
-      }
-      function canSend(){
-        const now = Date.now();
-        if(now - lastMsgTime < 800){ // 0.8s flood guard
-          return false;
-        }
-        lastMsgTime = now;
-        return true;
-      }
-      function emailFor(username){ return `${username}@discordclone.com`; }
+  // Load messages (persist across reloads)
+  function loadMessages(){
+    const chatBox = document.getElementById("chatBox");
+    db.ref("messages").off();
+    db.ref("messages").on("child_added", snap => {
+      const data = snap.val();
+      const div = document.createElement("div");
+      div.classList.add("message");
+      const myName = currentUser.email.split("@")[0];
+      div.classList.add(data.user === myName ? "mine" : "other");
+      div.textContent = data.user + ": " + data.message;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    });
+  }
 
-      // UI control
-      function showChat(){
-        loginPage.style.display = "none";
-        chatPage.style.display = "flex";
-        loadMessages();
-        loadUsers();
-        const uname = currentUser.email.split("@")[0];
-        currentUserNameEl.textContent = uname;
-        if(admins.includes(uname)){
-          adminToggleBtn.style.display = "inline-block";
-        } else {
-          adminToggleBtn.style.display = "none";
-          adminPanel.style.display = "none";
-        }
-      }
-      function showLogin(){
-        chatPage.style.display = "none";
-        loginPage.style.display = "flex";
-        adminPanel.style.display = "none";
-      }
-
-      // Online presence
-      function setOnline(username){
-        db.ref("onlineUsers/" + username).set({ online: true, at: Date.now() });
-        db.ref("onlineUsers/" + username).onDisconnect().remove();
-      }
-      function setOffline(username){
-        db.ref("onlineUsers/" + username).remove();
-      }
-      function usernameInUse(username){
-        return db.ref("onlineUsers/" + username).once("value").then(s => s.exists());
-      }
-
-      // Messages
-      function addMessageToDOM(data, key){
-        if(displayedMessageKeys.has(key)) return;
-        displayedMessageKeys.add(key);
-
-        const uname = currentUser ? currentUser.email.split("@")[0] : null;
-
-        // Message bubble
-        const div = document.createElement("div");
-        div.classList.add("message");
-        if(data.system) {
-          div.classList.add("system");
-        } else {
-          div.classList.add(data.user === uname ? "mine" : "other");
-        }
-
-        // Username label
-        const userSpan = document.createElement("span");
-        userSpan.classList.add("user");
-        userSpan.textContent = data.user || "Sistem";
-
-        // Decorations
-        if(admins.includes(data.user)){
-          userSpan.classList.add("rainbow");
-        }
-        if(vipUsers.includes(data.user)){
-          const vipSpan = document.createElement("span");
-          vipSpan.textContent = " 🏆";
-          vipSpan.style.color = "orange";
-          userSpan.appendChild(vipSpan);
-          userSpan.style.color = "orange";
-        }
-
-        // Message text
-        const messageText = document.createElement("span");
-        messageText.textContent = (data.system ? " " : ": ") + (data.message || "");
-
-        // Time
-        const timeDiv = document.createElement("div");
-        timeDiv.classList.add("message-time");
-        const ts = data.timestamp || Date.now();
-        timeDiv.textContent = new Date(ts).toLocaleTimeString();
-
-        // Build
-        div.appendChild(userSpan);
-        div.appendChild(messageText);
-        div.appendChild(timeDiv);
-        chatBox.appendChild(div);
-        chatBox.scrollTop = chatBox.scrollHeight;
-      }
-
-      function loadMessages(){
-        db.ref("messages").off();
-        db.ref("messages").on("child_added", snap => {
-          const val = snap.val();
-          addMessageToDOM(val, snap.key);
-        });
-      }
-
-      function sendMessage(){
-        const msg = messageInput.value.trim();
-        if(!msg) return;
-        if(!canSend()) return;
-        if(!isClean(msg)){
-          alert("Mesaj uygunsuz!");
-          return;
-        }
-
-        const uname = currentUser.email.split("@")[0];
-
-        // System command: //bse your text
-        if(msg.toLowerCase().startsWith("//bse ")){
-          const systemText = msg.slice(6).trim();
-          if(systemText.length === 0) return;
-          db.ref("messages").push({
-            user: "Sistem 🔹",
-            message: systemText,
-            timestamp: Date.now(),
-            system: true
-          });
-          messageInput.value = "";
-          return;
-        }
-
-        db.ref("messages").push({
-          user: uname,
-          message: msg,
-          timestamp: Date.now()
-        });
-        messageInput.value = "";
-      }
-
-      // Users list
-      function loadUsers(){
-        db.ref("onlineUsers").off();
-        db.ref("onlineUsers").on("value", snap => {
-          userList.innerHTML = "";
-          snap.forEach(child => {
-            const uname = child.key;
-            const li = document.createElement("li");
-            li.textContent = uname;
-            if(admins.includes(uname)) li.style.color = "gold";
-            else if(vipUsers.includes(uname)) li.style.color = "orange";
-            else li.style.color = "white";
-            userList.appendChild(li);
-          });
-        });
-      }
-
-      // Admin panel toggle
-      adminToggleBtn.addEventListener("click", () => {
-        const uname = currentUser.email.split("@")[0];
-        if(!admins.includes(uname)) return;
-        isAdminVisible = !isAdminVisible;
-        adminPanel.style.display = isAdminVisible ? "block" : "none";
+  // Load online users
+  function loadUsers(){
+    const ul = document.getElementById("userList");
+    db.ref("onlineUsers").off();
+    db.ref("onlineUsers").on("value", snap => {
+      ul.innerHTML = "";
+      snap.forEach(u => {
+        const li = document.createElement("li");
+        li.textContent = u.key;
+        ul.appendChild(li);
       });
+    });
+  }
 
-      // Admin: change password (placeholder logic; firebase requires auth)
-      changePassBtn.addEventListener("click", () => {
-        alert("Şifre değiştirme işlemi burada sadece placeholder. Firebase Auth güvenliği nedeniyle admin olarak başka kullanıcının şifresini doğrudan değiştiremezsin.");
-      });
+  // Send message
+  function sendMessage(){
+    const inp = document.getElementById("messageInput");
+    const msg = inp.value.trim();
+    if(!msg) return;
+    const uname = currentUser.email.split("@")[0];
+    db.ref("messages").push({ user: uname, message: msg, timestamp: Date.now() })
+      .then(() => { inp.value = ""; })
+      .catch(err => { alert("Yazma hatası: " + err.code); });
+  }
 
-      // Admin: delete all messages
-      deleteAllBtn.addEventListener("click", () => {
-        const uname = currentUser.email.split("@")[0];
-        if(!admins.includes(uname)) return alert("Yetkin yok.");
-        if(confirm("Tüm mesajları silmek istiyor musun?")){
-          db.ref("messages").remove().then(() => {
-            chatBox.innerHTML = "";
-            displayedMessageKeys.clear();
-          });
-        }
-      });
+  // Auth actions
+  document.getElementById("registerBtn").onclick = () => {
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+    if(!username || !password) return alert("Boş bırakma");
+    auth.createUserWithEmailAndPassword(username+"@chat.com", password)
+      .then(u => {
+        currentUser = u.user;
+        setOnline(username);
+        showChat();
+      })
+      .catch(err => alert(err.message));
+  };
 
-      // Admin: delete troll users (example: remove users with forbidden names)
-      deleteTrollBtn.addEventListener("click", () => {
-        const uname = currentUser.email.split("@")[0];
-        if(!admins.includes(uname)) return alert("Yetkin yok.");
-        if(confirm("Tacizci kullanıcıları silmek istiyor musun?")){
-          db.ref("onlineUsers").once("value").then(snap => {
-            snap.forEach(u => {
-              const name = u.key;
-              if(!isClean(name)) db.ref("onlineUsers/" + name).remove();
-            });
-          });
-        }
-      });
+  document.getElementById("loginBtn").onclick = () => {
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+    if(!username || !password) return alert("Boş bırakma");
+    auth.signInWithEmailAndPassword(username+"@chat.com", password)
+      .then(u => {
+        currentUser = u.user;
+        setOnline(username);
+        showChat();
+      })
+      .catch(err => alert("Giriş hatası: " + err.code));
+  };
 
-      // Admin panel draggable
-      (function makeAdminPanelDraggable(){
-        let isDragging = false, startX = 0, startY = 0, origX = 0, origY = 0;
-        adminPanel.addEventListener("mousedown", (e) => {
-          isDragging = true;
-          startX = e.clientX;
-          startY = e.clientY;
-          const rect = adminPanel.getBoundingClientRect();
-          origX = rect.left;
-          origY = rect.top;
-        });
-        window.addEventListener("mousemove", (e) => {
-          if(!isDragging) return;
-          const dx = e.clientX - startX;
-          const dy = e.clientY - startY;
-          adminPanel.style.left = (origX + dx) + "px";
-          adminPanel.style.top  = (origY + dy) + "px";
-        });
-        window.addEventListener("mouseup", () => { isDragging = false; });
-        // Touch support
-        adminPanel.addEventListener("touchstart", (e) => {
-          const t = e.touches[0];
-          isDragging = true;
-          startX = t.clientX; startY = t.clientY;
-          const rect = adminPanel.getBoundingClientRect();
-          origX = rect.left; origY = rect.top;
-        }, { passive: true });
-        window.addEventListener("touchmove", (e) => {
-          if(!isDragging) return;
-          const t = e.touches[0];
-          const dx = t.clientX - startX;
-          const dy = t.clientY - startY;
-          adminPanel.style.left = (origX + dx) + "px";
-          adminPanel.style.top  = (origY + dy) + "px";
-        }, { passive: true });
-        window.addEventListener("touchend", () => { isDragging = false; });
-      })();
+  document.getElementById("logoutBtn").onclick = async () => {
+    if(!currentUser) return;
+    const uname = currentUser.email.split("@")[0];
+    setOffline(uname);
+    await auth.signOut();
+    currentUser = null;
+    showLogin();
+  };
 
-      // Captcha + auth handlers
-      function attachAuthHandlers(){
-        generateCaptcha();
+  // Send events
+  document.getElementById("sendBtn").onclick = sendMessage;
+  document.getElementById("messageInput").addEventListener("keypress", e => {
+    if(e.key === "Enter") sendMessage();
+  });
 
-        registerBtn.addEventListener("click", async () => {
-          const username = (usernameInput.value || "").trim();
-          const password = (passwordInput.value || "").trim();
-          const captchaVal = parseInt(captchaInput.value, 10);
-
-          if(!username || !password) return showError("Kullanıcı adı/şifre boş olamaz.");
-          if(!isClean(username)) return showError("Kullanıcı adı yasaklı!");
-          if(captchaVal !== captcha1 + captcha2){ generateCaptcha(); return showError("Captcha yanlış!"); }
-
-          const exists = await usernameInUse(username);
-          if(exists){ return showError("Bu kullanıcı adı zaten aktif!"); }
-
-          try {
-            const res = await auth.createUserWithEmailAndPassword(emailFor(username), password);
-            currentUser = res.user;
-            setOnline(username);
-            showChat();
-          } catch(err){
-            showError(err.message || "Kayıt hatası!");
-          }
-        });
-
-        loginBtn.addEventListener("click", async () => {
-          const username = (usernameInput.value || "").trim();
-          const password = (passwordInput.value || "").trim();
-          const captchaVal = parseInt(captchaInput.value, 10);
-
-          if(!username || !password) return showError("Kullanıcı adı/şifre boş olamaz.");
-          if(captchaVal !== captcha1 + captcha2){ generateCaptcha(); return showError("Captcha yanlış!"); }
-
-          const exists = await usernameInUse(username);
-          if(exists){ return showError("Bu kullanıcı adı zaten aktif!"); }
-
-          try {
-            const res = await auth.signInWithEmailAndPassword(emailFor(username), password);
-            currentUser = res.user;
-            setOnline(username);
-            showChat();
-          } catch(err){
-            showError("Hatalı kullanıcı veya şifre!");
-          }
-        });
-
-        logoutBtn.addEventListener("click", async () => {
-          if(!currentUser) return;
-          const uname = currentUser.email.split("@")[0];
-          try {
-            setOffline(uname);
-            await auth.signOut();
-          } finally {
-            currentUser = null;
-            displayedMessageKeys.clear();
-            chatBox.innerHTML = "";
-            showLogin();
-            generateCaptcha();
-          }
-        });
-      }
-
-      // Message handlers
-      function attachMessageHandlers(){
-        sendBtn.addEventListener("click", sendMessage);
-        messageInput.addEventListener("keypress", (e) => {
-          if(e.key === "Enter") sendMessage();
-        });
-      }
-
-      // Start
-      attachAuthHandlers();
-      attachMessageHandlers();
-
-      // Restore session if available (optional)
-      auth.onAuthStateChanged(user => {
-        if(user){
-          currentUser = user;
-          const uname = user.email.split("@")[0];
-          setOnline(uname);
-          showChat();
-        } else {
-          showLogin();
-        }
-      });
-    })();
-  </script>
+  // Session restore
+  auth.onAuthStateChanged(user => {
+    if(user){
+      currentUser = user;
+      const uname = user.email.split("@")[0];
+      setOnline(uname);
+      showChat();
+    } else {
+      showLogin();
+    }
+  });
+</script>
 </body>
 </html>
