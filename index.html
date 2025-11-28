@@ -1,276 +1,563 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bayscord</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
-html,body{height:100%;overflow:hidden;background:#2c2f33;color:#fff;}
-body::before{
-  content:"";position:fixed;top:0;left:0;width:100%;height:100%;
-  background: radial-gradient(2px 2px,#fff,#fff0) repeat;
-  background-size: 20px 20px;
-  animation:stars 60s linear infinite;
-  z-index:-1;
-}
-@keyframes stars{0%{background-position:0 0;}100%{background-position:-10000px 0;}}
-#loginPage{display:flex;justify-content:center;align-items:center;height:100vh;flex-direction:column;}
-#loginPage input,#loginPage button{width:250px;margin:5px 0;padding:10px;border-radius:5px;border:none;}
-#chatPage{display:none;height:100vh;width:100%;flex-direction:row;}
-#sidebar{width:220px;background:#23272a;padding:10px;overflow-y:auto;}
-#userList{list-style:none;padding:0;}
-#chatContainer{flex:1;display:flex;flex-direction:column;padding:10px;}
-#chatBox{flex:1;background:#2c2f33;border-radius:5px;overflow-y:auto;padding:10px;margin-bottom:10px;}
-.message{padding:8px;border-radius:10px;margin-bottom:5px;max-width:60%;word-wrap:break-word;position:relative;}
-.message.mine{background:#7289da;margin-left:auto;}
-.message.other{background:#99aab5;margin-right:auto;}
-.message.system{background:#ff9f1c;color:#000;text-align:center;font-weight:bold;}
-.message span{font-weight:bold;margin-right:5px;}
-.message-time{font-size:0.7em;color:#ccc;position:absolute;right:5px;bottom:2px;}
-.rainbow{background: linear-gradient(to right, red,orange,yellow,green,cyan,blue,violet);-webkit-background-clip:text;color:transparent;animation:rainbowAnim 3s linear infinite;}
-@keyframes rainbowAnim{0%{background-position:0%;}100%{background-position:100%;}}
-#adminPanel{display:none;background:#23272a;padding:15px;border-radius:10px;position:absolute;top:50px;left:50px;width:300px;cursor:move;box-shadow:0 0 20px rgba(0,0,0,0.5);}
-#adminPanel h3{margin-bottom:10px;text-align:center;}
-#adminPanel input,#adminPanel button{width:100%;margin:5px 0;padding:8px;border-radius:5px;border:none;}
-</style>
-<script src="config.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>hareketliBlok Chat</title>
+
+  <style>
+    /* Global reset and base styles */
+    * { margin:0; padding:0; box-sizing:border-box; font-family:Arial, sans-serif; }
+    html, body { height:100%; background:#2c2f33; color:#fff; overflow:hidden; }
+
+    /* Star background */
+    body::before {
+      content:"";
+      position:fixed; top:0; left:0; width:100%; height:100%;
+      background: radial-gradient(2px 2px, #fff, #fff0) repeat;
+      background-size: 20px 20px;
+      animation: stars 60s linear infinite;
+      z-index:-1;
+    }
+    @keyframes stars { 0%{background-position:0 0;} 100%{background-position:-10000px 0;} }
+
+    /* Login page */
+    #loginPage {
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      height:100vh;
+      flex-direction:column;
+      gap:8px;
+    }
+    #loginPage input, #loginPage button {
+      width:280px; padding:10px; border-radius:6px; border:none;
+      background:#23272a; color:#fff;
+    }
+    #loginPage button {
+      background:#7289da; cursor:pointer;
+    }
+    #loginPage button:hover { filter:brightness(1.1); }
+    #captchaText { font-weight:bold; }
+
+    /* Chat page layout */
+    #chatPage {
+      display:none;
+      height:100vh; width:100%;
+      flex-direction:row;
+    }
+
+    /* Sidebar for users */
+    #sidebar {
+      width:240px; background:#23272a; padding:12px; overflow-y:auto;
+      border-right:1px solid #1f2124;
+    }
+    #sidebar h3 { margin-bottom:10px; }
+    #userList { list-style:none; padding:0; display:flex; flex-direction:column; gap:6px; }
+    #userList li { padding:6px 8px; background:#2c2f33; border-radius:6px; }
+
+    /* Chat container */
+    #chatContainer {
+      flex:1; display:flex; flex-direction:column; padding:12px;
+    }
+    #chatHeader {
+      display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;
+    }
+    #chatBox {
+      flex:1; background:#2c2f33; border-radius:8px; overflow-y:auto; padding:10px; margin-bottom:10px;
+      border:1px solid #1f2124;
+    }
+
+    /* Message bubbles */
+    .message {
+      padding:10px 12px; border-radius:12px; margin-bottom:8px; max-width:70%;
+      word-wrap:break-word; position:relative; line-height:1.35;
+    }
+    .message.mine { background:#7289da; margin-left:auto; }
+    .message.other { background:#99aab5; margin-right:auto; color:#141414; }
+    .message.system { background:#ff9f1c; color:#000; text-align:center; font-weight:bold; max-width:100%; }
+    .message .user { font-weight:bold; margin-right:6px; }
+    .message-time { font-size:0.72em; color:#e1e1e1; position:absolute; right:8px; bottom:6px; }
+
+    /* Input row */
+    #inputRow {
+      display:flex; gap:8px;
+    }
+    #messageInput {
+      flex:1; padding:10px; border-radius:8px; border:none; background:#23272a; color:#fff;
+    }
+    #sendBtn {
+      padding:10px 16px; border-radius:8px; border:none; background:#43b581; color:#fff; cursor:pointer;
+    }
+    #sendBtn:hover { filter:brightness(1.1); }
+
+    /* Admin panel (draggable) */
+    #adminPanel {
+      display:none;
+      background:#23272a; padding:15px; border-radius:10px; position:absolute; top:60px; left:60px; width:300px;
+      cursor:move; box-shadow:0 0 20px rgba(0,0,0,0.5); border:1px solid #1f2124; z-index:10;
+    }
+    #adminPanel h3 { margin-bottom:10px; text-align:center; }
+    #adminPanel input, #adminPanel button {
+      width:100%; margin:6px 0; padding:8px; border-radius:6px; border:none;
+      background:#2c2f33; color:#fff;
+    }
+    #adminPanel button { background:#7289da; cursor:pointer; }
+    #adminPanel button.danger { background:#f04747; }
+    #adminPanel button:hover { filter:brightness(1.1); }
+
+    /* Rainbow admin name */
+    .rainbow {
+      background: linear-gradient(to right, red, orange, yellow, green, cyan, blue, violet);
+      -webkit-background-clip: text;
+      color: transparent;
+      animation: rainbowAnim 3s linear infinite;
+    }
+    @keyframes rainbowAnim { 0%{background-position:0%;} 100%{background-position:100%;} }
+
+    /* Utility */
+    .hidden { display:none !important; }
+    .row { display:flex; gap:8px; }
+    .center { display:flex; align-items:center; justify-content:center; }
+  </style>
+
+  <!-- Your Firebase config should be defined in config.js as: const firebaseConfig = { ... } -->
+  <script src="config.js"></script>
+
+  <!-- Firebase v9 compat (App/Auth/Database) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
 <body>
-<div id="loginPage">
-  <h1>Bayscord HOŞGELDİNNN</h1>
-  <input type="text" id="username" placeholder="Kullanıcı adı">
-  <input type="password" id="password" placeholder="Şifre">
-  <div>Captcha: <span id="captchaText" style="font-weight:bold;"></span></div>
-  <input type="number" id="captchaInput" placeholder="Toplama sonucu">
-  <button id="loginBtn">Giriş Yap</button>
-  <button id="registerBtn">Kayıt Ol</button>
-</div>
 
-<div id="chatPage">
-  <div id="sidebar">
-    <h3>Online Kullanıcılar</h3>
-    <ul id="userList"></ul>
-    <button id="logoutBtn">Çıkış</button>
-    <button id="clearUsersBtn">Kullanıcı Listesini Temizle</button>
+  <!-- Login Page -->
+  <div id="loginPage">
+    <h2 style="margin-bottom:8px;">Bayscord Chat</h2>
+    <input type="text" id="username" placeholder="Kullanıcı adı">
+    <input type="password" id="password" placeholder="Şifre">
+    <div class="row center">
+      <div>Captcha: <span id="captchaText" style="font-weight:bold;"></span></div>
+    </div>
+    <input type="number" id="captchaInput" placeholder="Toplama sonucu">
+    <button id="loginBtn">Giriş Yap</button>
+    <button id="registerBtn">Kayıt Ol</button>
+    <div id="loginError" class="hidden" style="color:#ff7b7b; margin-top:6px;"></div>
   </div>
-  <div id="chatContainer">
-    <div id="chatBox"></div>
-    <input type="text" id="messageInput" placeholder="Mesaj yaz...">
-    <button id="sendBtn">Gönder</button>
+
+  <!-- Chat Page -->
+  <div id="chatPage">
+    <!-- Sidebar: user list -->
+    <div id="sidebar">
+      <div class="row" style="justify-content:space-between; align-items:center;">
+        <h3>Online Kullanıcılar</h3>
+        <button id="logoutBtn" style="padding:6px 8px; border-radius:6px; border:none; background:#f04747; color:#fff; cursor:pointer;">Çıkış</button>
+      </div>
+      <ul id="userList"></ul>
+    </div>
+
+    <!-- Chat container -->
+    <div id="chatContainer">
+      <div id="chatHeader">
+        <div id="currentUserInfo">Kullanıcı: <span id="currentUserName">-</span></div>
+        <button id="adminToggleBtn" style="padding:8px 10px; border-radius:8px; border:none; background:#7289da; color:#fff; cursor:pointer;">Admin Panel</button>
+      </div>
+      <div id="chatBox"></div>
+      <div id="inputRow">
+        <input type="text" id="messageInput" placeholder="Mesaj yaz...">
+        <button id="sendBtn">Gönder</button>
+      </div>
+    </div>
   </div>
-</div>
 
-<div id="adminPanel">
-  <h3>Admin Panel</h3>
-  <input type="text" id="targetUser" placeholder="Kullanıcı adı">
-  <input type="text" id="newPassword" placeholder="Yeni Şifre">
-  <button id="changePassBtn">Şifreyi Değiştir</button>
-  <button id="deleteAllBtn">Tüm Mesajları Sil</button>
-  <button id="deleteTrollBtn">Tacizci Kullanıcıları Sil</button>
-</div>
+  <!-- Admin Panel -->
+  <div id="adminPanel">
+    <h3>Admin Panel</h3>
+    <input type="text" id="targetUser" placeholder="Kullanıcı adı">
+    <input type="text" id="newPassword" placeholder="Yeni Şifre">
+    <button id="changePassBtn">Şifreyi Değiştir</button>
+    <button id="deleteAllBtn" class="danger">Tüm Mesajları Sil</button>
+    <button id="deleteTrollBtn" class="danger">Tacizci Kullanıcıları Sil</button>
+    <div style="font-size:12px; color:#ccc; margin-top:8px;">
+      //bse <mesaj> → Sistem duyurusu gönderir
+    </div>
+  </div>
 
-<script>
-window.onload = function(){
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.database();
+  <script>
+    (function(){
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.database();
 
-  let currentUser=null;
-  let captcha1=0, captcha2=0;
-  let lastMsgTime=0;
-  const admins=["localstorage","bs287yaguz"];
-  const vipUsers=["VIPUser1","VIPUser2"];
-  const displayedMessages = new Set();
+      // Elements
+      const loginPage = document.getElementById("loginPage");
+      const chatPage = document.getElementById("chatPage");
+      const loginBtn = document.getElementById("loginBtn");
+      const registerBtn = document.getElementById("registerBtn");
+      const logoutBtn = document.getElementById("logoutBtn");
+      const usernameInput = document.getElementById("username");
+      const passwordInput = document.getElementById("password");
+      const captchaText = document.getElementById("captchaText");
+      const captchaInput = document.getElementById("captchaInput");
+      const loginError = document.getElementById("loginError");
+      const chatBox = document.getElementById("chatBox");
+      const messageInput = document.getElementById("messageInput");
+      const sendBtn = document.getElementById("sendBtn");
+      const userList = document.getElementById("userList");
+      const adminPanel = document.getElementById("adminPanel");
+      const adminToggleBtn = document.getElementById("adminToggleBtn");
+      const changePassBtn = document.getElementById("changePassBtn");
+      const deleteAllBtn = document.getElementById("deleteAllBtn");
+      const deleteTrollBtn = document.getElementById("deleteTrollBtn");
+      const targetUserInput = document.getElementById("targetUser");
+      const newPasswordInput = document.getElementById("newPassword");
+      const currentUserNameEl = document.getElementById("currentUserName");
 
-  const forbiddenWords=["orospu","piç","siktir","amk","amına","amcık","göt","göt deliği","sik","sikiş","sikeyim","amına koyim","amına koyayım","sürtük","kahpe","mal","salak","aptal","yarak","oç","tecavüz","taciz","ananı","babanı","ibne","pezevenk","götveren","götüne koyayım","test","null","undefined","admin","moderator","mod","root","owner","bullet"];
+      // State
+      let currentUser = null;
+      let captcha1 = 0, captcha2 = 0;
+      let lastMsgTime = 0;
+      const forbiddenWords = ["null"]; // extendable
+      const admins = ["localstorage", "bs287yaguz"]; // rainbow names
+      const vipUsers = ["VIPUser1", "VIPUser2"];     // orange badge
+      const displayedMessageKeys = new Set();        // prevent duplicate DOM
+      let isAdminVisible = false;
 
-  function generateCaptcha(){
-    captcha1=Math.floor(Math.random()*10);
-    captcha2=Math.floor(Math.random()*10);
-    document.getElementById("captchaText").innerText=`${captcha1}+${captcha2}=?`;
-  }
-  generateCaptcha();
+      // Helpers
+      function generateCaptcha(){
+        captcha1 = Math.floor(Math.random()*5);
+        captcha2 = Math.floor(Math.random()*5);
+        captchaText.textContent = `${captcha1}+${captcha2}=?`;
+      }
+      function showError(text){
+        loginError.textContent = text;
+        loginError.classList.remove("hidden");
+        setTimeout(()=>loginError.classList.add("hidden"), 3000);
+      }
+      function isClean(text){
+        const lower = String(text || "").toLowerCase();
+        for(const w of forbiddenWords){
+          if(new RegExp("\\b" + w + "\\b", "gi").test(lower)) return false;
+        }
+        return true;
+      }
+      function canSend(){
+        const now = Date.now();
+        if(now - lastMsgTime < 800){ // 0.8s flood guard
+          return false;
+        }
+        lastMsgTime = now;
+        return true;
+      }
+      function emailFor(username){ return `${username}@discordclone.com`; }
 
-  function isClean(text){
-    text=text.toLowerCase();
-    for(const w of forbiddenWords){
-      if(new RegExp("\\b"+w+"\\b","gi").test(text)) return false;
-    }
-    return true;
-  }
+      // UI control
+      function showChat(){
+        loginPage.style.display = "none";
+        chatPage.style.display = "flex";
+        loadMessages();
+        loadUsers();
+        const uname = currentUser.email.split("@")[0];
+        currentUserNameEl.textContent = uname;
+        if(admins.includes(uname)){
+          adminToggleBtn.style.display = "inline-block";
+        } else {
+          adminToggleBtn.style.display = "none";
+          adminPanel.style.display = "none";
+        }
+      }
+      function showLogin(){
+        chatPage.style.display = "none";
+        loginPage.style.display = "flex";
+        adminPanel.style.display = "none";
+      }
 
-  function canSend(){ const now=Date.now(); if(now-lastMsgTime<2000){ alert("⚠️ Çok hızlı mesaj!"); return false;} lastMsgTime=now; return true;}
+      // Online presence
+      function setOnline(username){
+        db.ref("onlineUsers/" + username).set({ online: true, at: Date.now() });
+        db.ref("onlineUsers/" + username).onDisconnect().remove();
+      }
+      function setOffline(username){
+        db.ref("onlineUsers/" + username).remove();
+      }
+      function usernameInUse(username){
+        return db.ref("onlineUsers/" + username).once("value").then(s => s.exists());
+      }
 
-  document.getElementById("registerBtn").onclick=()=> {
-    const username=document.getElementById("username").value.trim();
-    const password=document.getElementById("password").value.trim();
-    const captchaInput=parseInt(document.getElementById("captchaInput").value);
-    if(!isClean(username)){ alert("❌ Kullanıcı adı yasaklı!"); return;}
-    if(captchaInput!==captcha1+captcha2){ alert("Captcha yanlış!"); generateCaptcha(); return;}
-    auth.createUserWithEmailAndPassword(username+"@discordclone.com",password)
-    .then(u=>{currentUser=u.user; localStorage.setItem("dcUser", username); localStorage.setItem("dcPass", password); setOnline(); showChat();})
-    .catch(err=>alert(err.message));
-  };
+      // Messages
+      function addMessageToDOM(data, key){
+        if(displayedMessageKeys.has(key)) return;
+        displayedMessageKeys.add(key);
 
-  document.getElementById("loginBtn").onclick=()=> {
-    const username=document.getElementById("username").value.trim();
-    const password=document.getElementById("password").value.trim();
-    const captchaInput=parseInt(document.getElementById("captchaInput").value);
-    if(captchaInput!==captcha1+captcha2){ alert("Captcha yanlış!"); generateCaptcha(); return;}
-    auth.signInWithEmailAndPassword(username+"@discordclone.com",password)
-    .then(u=>{currentUser=u.user; localStorage.setItem("dcUser", username); localStorage.setItem("dcPass", password); setOnline(); showChat();})
-    .catch(()=>alert("Hatalı kullanıcı veya şifre!"));
-  };
+        const uname = currentUser ? currentUser.email.split("@")[0] : null;
 
-  function showChat(){
-    document.getElementById("loginPage").style.display="none";
-    document.getElementById("chatPage").style.display="flex";
-    loadMsgs(); loadUsers();
-    const userName=currentUser.email.split("@")[0];
-    if(admins.includes(userName)){ document.getElementById("adminPanel").style.display="block"; }
-  }
+        // Message bubble
+        const div = document.createElement("div");
+        div.classList.add("message");
+        if(data.system) {
+          div.classList.add("system");
+        } else {
+          div.classList.add(data.user === uname ? "mine" : "other");
+        }
 
-  function sendMsg(){
-    const msg=document.getElementById("messageInput").value.trim();
-    if(!msg||!canSend()||!isClean(msg)){ alert("Mesaj uygunsuz!"); return;}
-    const user=currentUser.email.split("@")[0];
+        // Username label
+        const userSpan = document.createElement("span");
+        userSpan.classList.add("user");
+        userSpan.textContent = data.user || "Sistem";
 
-    if(msg.toLowerCase().startsWith("//bse ")){
-      const systemText = msg.slice(6);
-      db.ref("messages").push({user:"Sistem 🔹",message:systemText,timestamp:Date.now(),system:true});
-      document.getElementById("messageInput").value = "";
-      return;
-    }
+        // Decorations
+        if(admins.includes(data.user)){
+          userSpan.classList.add("rainbow");
+        }
+        if(vipUsers.includes(data.user)){
+          const vipSpan = document.createElement("span");
+          vipSpan.textContent = " 🏆";
+          vipSpan.style.color = "orange";
+          userSpan.appendChild(vipSpan);
+          userSpan.style.color = "orange";
+        }
 
-    db.ref("messages").push({user:user,message:msg,timestamp:Date.now()});
-    document.getElementById("messageInput").value="";
-  }
-  document.getElementById("sendBtn").onclick=sendMsg;
-  document.getElementById("messageInput").addEventListener("keypress",e=>{if(e.key==="Enter") sendMsg();});
+        // Message text
+        const messageText = document.createElement("span");
+        messageText.textContent = (data.system ? " " : ": ") + (data.message || "");
 
-  function addMessageToDOM(data,msgId){
-    const chatBox=document.getElementById("chatBox");
-    if(displayedMessages.has(msgId)) return;
-    displayedMessages.add(msgId);
-    const div=document.createElement("div");
-    div.classList.add("message");
-    if(data.system) div.classList.add("system");
-    else div.classList.add(data.user===currentUser.email.split("@")[0]?"mine":"other");
+        // Time
+        const timeDiv = document.createElement("div");
+        timeDiv.classList.add("message-time");
+        const ts = data.timestamp || Date.now();
+        timeDiv.textContent = new Date(ts).toLocaleTimeString();
 
-    const userSpan=document.createElement("span");
-    userSpan.textContent=data.user;
+        // Build
+        div.appendChild(userSpan);
+        div.appendChild(messageText);
+        div.appendChild(timeDiv);
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
 
-    if(admins.includes(data.user)) userSpan.classList.add("rainbow");
-
-    if(vipUsers.includes(data.user)){
-      const vipSpan=document.createElement("span");
-      vipSpan.textContent=" 🏆";
-      vipSpan.style.color="orange";
-      userSpan.appendChild(vipSpan);
-      userSpan.style.color="orange";
-    }
-
-    div.appendChild(userSpan);
-
-    const messageText=document.createElement("span");
-    messageText.textContent=": "+data.message;
-    div.appendChild(messageText);
-
-    const timeDiv=document.createElement("div");
-    timeDiv.classList.add("message-time");
-    timeDiv.textContent=new Date(data.timestamp).toLocaleTimeString();
-    div.appendChild(timeDiv);
-
-    chatBox.appendChild(div);
-    chatBox.scrollTop=chatBox.scrollHeight;
-  }
-
-  function loadMsgs(){db.ref("messages").on("child_added",snap=>{ addMessageToDOM(snap.val(), snap.key); });}
-  function setOnline(){const user=currentUser.email.split("@")[0]; db.ref("onlineUsers/"+user).set({online:true}); db.ref("onlineUsers/"+user).onDisconnect().remove();}
-  function setOffline(){const user=currentUser.email.split("@")[0]; db.ref("onlineUsers/"+user).remove();}
-  function loadUsers(){
-    const userList=document.getElementById("userList");
-    db.ref("onlineUsers").on("value",snap=>{
-      userList.innerHTML="";
-      snap.forEach(u=>{
-        const li=document.createElement("li");
-        li.textContent=u.key;
-        li.style.color=admins.includes(u.key)?"gold":vipUsers.includes(u.key)?"orange":"white";
-        userList.appendChild(li);
-      });
-    });
-  }
-
-  // Admin panel
-  document.getElementById("changePassBtn").onclick=()=>{
-    const target=document.getElementById("targetUser").value.trim();
-    const newPass=document.getElementById("newPassword").value.trim();
-    if(!target||!newPass) return alert("Kullanıcı ve şifre gir!");
-    auth.signInWithEmailAndPassword(target+"@discordclone.com",newPass)
-      .then(()=>alert("Şifre değiştirildi!"))
-      .catch(()=>alert("Hata!"));
-  };
-  document.getElementById("deleteAllBtn").onclick=()=>{if(confirm("Tüm mesajları silmek istiyor musun?")){db.ref("messages").remove();document.getElementById("chatBox").innerHTML="";}};
-  document.getElementById("deleteTrollBtn").onclick=()=>{
-    if(confirm("Tacizci kullanıcıları silmek istiyor musun?")){
-      db.ref("onlineUsers").once("value",snap=>{
-        snap.forEach(u=>{
-          if(!isClean(u.key)) db.ref("onlineUsers/"+u.key).remove();
+      function loadMessages(){
+        db.ref("messages").off();
+        db.ref("messages").on("child_added", snap => {
+          const val = snap.val();
+          addMessageToDOM(val, snap.key);
         });
+      }
+
+      function sendMessage(){
+        const msg = messageInput.value.trim();
+        if(!msg) return;
+        if(!canSend()) return;
+        if(!isClean(msg)){
+          alert("Mesaj uygunsuz!");
+          return;
+        }
+
+        const uname = currentUser.email.split("@")[0];
+
+        // System command: //bse your text
+        if(msg.toLowerCase().startsWith("//bse ")){
+          const systemText = msg.slice(6).trim();
+          if(systemText.length === 0) return;
+          db.ref("messages").push({
+            user: "Sistem 🔹",
+            message: systemText,
+            timestamp: Date.now(),
+            system: true
+          });
+          messageInput.value = "";
+          return;
+        }
+
+        db.ref("messages").push({
+          user: uname,
+          message: msg,
+          timestamp: Date.now()
+        });
+        messageInput.value = "";
+      }
+
+      // Users list
+      function loadUsers(){
+        db.ref("onlineUsers").off();
+        db.ref("onlineUsers").on("value", snap => {
+          userList.innerHTML = "";
+          snap.forEach(child => {
+            const uname = child.key;
+            const li = document.createElement("li");
+            li.textContent = uname;
+            if(admins.includes(uname)) li.style.color = "gold";
+            else if(vipUsers.includes(uname)) li.style.color = "orange";
+            else li.style.color = "white";
+            userList.appendChild(li);
+          });
+        });
+      }
+
+      // Admin panel toggle
+      adminToggleBtn.addEventListener("click", () => {
+        const uname = currentUser.email.split("@")[0];
+        if(!admins.includes(uname)) return;
+        isAdminVisible = !isAdminVisible;
+        adminPanel.style.display = isAdminVisible ? "block" : "none";
       });
-    }
-  };
-  document.getElementById("clearUsersBtn").onclick=()=>{
-    if(confirm("Kullanıcı listesini temizlemek istiyor musun?")) db.ref("onlineUsers").remove();
-  };
 
-  // Sürüklenebilir admin panel
-  const admin=document.getElementById("adminPanel");
-  let isDragging=false,offsetX=0,offsetY=0;
-  admin.addEventListener("mousedown",e=>{isDragging=true; offsetX=e.offsetX; offsetY=e.offsetY;});
-  document.addEventListener("mouseup",()=>{isDragging=false;});
-  document.addEventListener("mousemove",e=>{if(isDragging){admin.style.left=(e.pageX-offsetX)+"px"; admin.style.top=(e.pageY-offsetY)+"px";}});
+      // Admin: change password (placeholder logic; firebase requires auth)
+      changePassBtn.addEventListener("click", () => {
+        alert("Şifre değiştirme işlemi burada sadece placeholder. Firebase Auth güvenliği nedeniyle admin olarak başka kullanıcının şifresini doğrudan değiştiremezsin.");
+      });
 
-  // ULTRA BOT KORUMA
-  (function() {
-    const userIPs = {};
-    function blockUser(user){ db.ref("onlineUsers/"+user).remove(); }
-    function detectBot(user){
-      const now=Date.now();
-      if(!userIPs[user]) userIPs[user]=[];
-      userIPs[user]=userIPs[user].filter(t=>now-t<5000); // 5 saniyede çoklu mesaj
-      userIPs[user].push(now);
-      if(userIPs[user].length>5) blockUser(user);
-    }
-    db.ref("messages").on("child_added",snap=>{
-      const data=snap.val();
-      if(!isClean(data.message)) blockUser(data.user);
-      detectBot(data.user);
-    });
-  })();
+      // Admin: delete all messages
+      deleteAllBtn.addEventListener("click", () => {
+        const uname = currentUser.email.split("@")[0];
+        if(!admins.includes(uname)) return alert("Yetkin yok.");
+        if(confirm("Tüm mesajları silmek istiyor musun?")){
+          db.ref("messages").remove().then(() => {
+            chatBox.innerHTML = "";
+            displayedMessageKeys.clear();
+          });
+        }
+      });
 
-  // ULTRA KOD ENGELLEME
-  (function() {
-    function blockAccess() { window.location.replace("about:blank"); }
-    function detectDevTools() {
-      const threshold = 160;
-      const widthThreshold = window.outerWidth - window.innerWidth > threshold;
-      const heightThreshold = window.outerHeight - window.innerHeight > threshold;
-      if(widthThreshold || heightThreshold) blockAccess();
-    }
-    document.addEventListener("keydown", function(e) {
-      const key = e.key.toUpperCase();
-      if(key==="F12"||(e.ctrlKey && e.shiftKey && ["I","J","C"].includes(key))||(e.ctrlKey && key==="U")){ e.preventDefault(); blockAccess(); }
-    });
-    document.addEventListener("contextmenu", function(e){ e.preventDefault(); alert("⚠️ Sağ tık yasak!"); });
-    setInterval(detectDevTools,500);
-  })();
+      // Admin: delete troll users (example: remove users with forbidden names)
+      deleteTrollBtn.addEventListener("click", () => {
+        const uname = currentUser.email.split("@")[0];
+        if(!admins.includes(uname)) return alert("Yetkin yok.");
+        if(confirm("Tacizci kullanıcıları silmek istiyor musun?")){
+          db.ref("onlineUsers").once("value").then(snap => {
+            snap.forEach(u => {
+              const name = u.key;
+              if(!isClean(name)) db.ref("onlineUsers/" + name).remove();
+            });
+          });
+        }
+      });
 
-};
-</script>
+      // Admin panel draggable
+      (function makeAdminPanelDraggable(){
+        let isDragging = false, startX = 0, startY = 0, origX = 0, origY = 0;
+        adminPanel.addEventListener("mousedown", (e) => {
+          isDragging = true;
+          startX = e.clientX;
+          startY = e.clientY;
+          const rect = adminPanel.getBoundingClientRect();
+          origX = rect.left;
+          origY = rect.top;
+        });
+        window.addEventListener("mousemove", (e) => {
+          if(!isDragging) return;
+          const dx = e.clientX - startX;
+          const dy = e.clientY - startY;
+          adminPanel.style.left = (origX + dx) + "px";
+          adminPanel.style.top  = (origY + dy) + "px";
+        });
+        window.addEventListener("mouseup", () => { isDragging = false; });
+        // Touch support
+        adminPanel.addEventListener("touchstart", (e) => {
+          const t = e.touches[0];
+          isDragging = true;
+          startX = t.clientX; startY = t.clientY;
+          const rect = adminPanel.getBoundingClientRect();
+          origX = rect.left; origY = rect.top;
+        }, { passive: true });
+        window.addEventListener("touchmove", (e) => {
+          if(!isDragging) return;
+          const t = e.touches[0];
+          const dx = t.clientX - startX;
+          const dy = t.clientY - startY;
+          adminPanel.style.left = (origX + dx) + "px";
+          adminPanel.style.top  = (origY + dy) + "px";
+        }, { passive: true });
+        window.addEventListener("touchend", () => { isDragging = false; });
+      })();
+
+      // Captcha + auth handlers
+      function attachAuthHandlers(){
+        generateCaptcha();
+
+        registerBtn.addEventListener("click", async () => {
+          const username = (usernameInput.value || "").trim();
+          const password = (passwordInput.value || "").trim();
+          const captchaVal = parseInt(captchaInput.value, 10);
+
+          if(!username || !password) return showError("Kullanıcı adı/şifre boş olamaz.");
+          if(!isClean(username)) return showError("Kullanıcı adı yasaklı!");
+          if(captchaVal !== captcha1 + captcha2){ generateCaptcha(); return showError("Captcha yanlış!"); }
+
+          const exists = await usernameInUse(username);
+          if(exists){ return showError("Bu kullanıcı adı zaten aktif!"); }
+
+          try {
+            const res = await auth.createUserWithEmailAndPassword(emailFor(username), password);
+            currentUser = res.user;
+            setOnline(username);
+            showChat();
+          } catch(err){
+            showError(err.message || "Kayıt hatası!");
+          }
+        });
+
+        loginBtn.addEventListener("click", async () => {
+          const username = (usernameInput.value || "").trim();
+          const password = (passwordInput.value || "").trim();
+          const captchaVal = parseInt(captchaInput.value, 10);
+
+          if(!username || !password) return showError("Kullanıcı adı/şifre boş olamaz.");
+          if(captchaVal !== captcha1 + captcha2){ generateCaptcha(); return showError("Captcha yanlış!"); }
+
+          const exists = await usernameInUse(username);
+          if(exists){ return showError("Bu kullanıcı adı zaten aktif!"); }
+
+          try {
+            const res = await auth.signInWithEmailAndPassword(emailFor(username), password);
+            currentUser = res.user;
+            setOnline(username);
+            showChat();
+          } catch(err){
+            showError("Hatalı kullanıcı veya şifre!");
+          }
+        });
+
+        logoutBtn.addEventListener("click", async () => {
+          if(!currentUser) return;
+          const uname = currentUser.email.split("@")[0];
+          try {
+            setOffline(uname);
+            await auth.signOut();
+          } finally {
+            currentUser = null;
+            displayedMessageKeys.clear();
+            chatBox.innerHTML = "";
+            showLogin();
+            generateCaptcha();
+          }
+        });
+      }
+
+      // Message handlers
+      function attachMessageHandlers(){
+        sendBtn.addEventListener("click", sendMessage);
+        messageInput.addEventListener("keypress", (e) => {
+          if(e.key === "Enter") sendMessage();
+        });
+      }
+
+      // Start
+      attachAuthHandlers();
+      attachMessageHandlers();
+
+      // Restore session if available (optional)
+      auth.onAuthStateChanged(user => {
+        if(user){
+          currentUser = user;
+          const uname = user.email.split("@")[0];
+          setOnline(uname);
+          showChat();
+        } else {
+          showLogin();
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
