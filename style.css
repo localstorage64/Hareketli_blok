@@ -1,19 +1,35 @@
+
 body {
-  background-color: white;
+  background-color: transparent;
 }
 
 button {
-  background-color: white;
-  color: black;
+  background-color: transparent !important; /* Arka plan şeffaf */
+  color: gray !important;                  /* Yazı beyaz */
   border: 1px solid #ccc;
   padding: 10px 20px;
   border-radius: 5px;
   cursor: pointer;
+
+  /* Varsayılan tarayıcı stilini kaldır */
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+h2 {
+  color: white;
+}
+
+div {
+  color: white;
+}
+
+captcha {
 }
 
 input {
-  background-color: white;
-  color: black;
+  background-color: transparent;
+  color: white;
   border: 1px solid #ccc;
   padding: 10px 20px;
   border-radius: 5px;
@@ -33,17 +49,7 @@ body {
   margin: 0;
   padding: 10px;
   font-family: sans-serif;
-  background-color: white;
-}
-
-button {
-  width: 100%;
-  padding: 15px;
-  font-size: 16px;
-  background-color: white;
-  color: black;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  background-color: black;
 }
 
 a {
@@ -56,6 +62,22 @@ a {
 
 a:hover {
   text-decoration: underline;
+}
+
+admin {
+  background-color: transparent;
+  color: gray;
+  border: 1px solid #ccc;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  box-shadow: none !important;          /* Varsayılan gölgeyi kaldır */
 }
 
 button {
