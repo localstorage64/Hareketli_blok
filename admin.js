@@ -63,7 +63,6 @@
     admin.style.width = '340px';
     admin.style.maxHeight = '60vh';
     admin.style.overflow = 'auto';
-    admin.style.background = '#fff';
     admin.style.border = '1px solid #ddd';
     admin.style.padding = '8px';
     admin.style.borderRadius = '8px';
@@ -112,7 +111,7 @@
     b.style.padding = '6px 8px';
     b.style.borderRadius = '6px';
     b.style.border = '1px solid #ccc';
-    b.style.background = opts.background || '#fff';
+    b.style.background = opts.background || 'transparent';
     b.style.cursor = 'pointer';
     return b;
   }
