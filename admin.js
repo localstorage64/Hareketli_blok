@@ -1,11 +1,11 @@
-// admin-panel-enhance
+//admin.js
 
 (async function(){
   // --- HELPERS ---
   function log(...args){ console.log('[admin-enhance]', ...args); }
   function err(...args){ console.error('[admin-enhance]', ...args); }
 
-  // DB URL tespiti
+  // database URL tespiti
   function detectDbUrl(){
     try {
       if (window.firebase && firebase.apps && firebase.apps[0] && firebase.apps[0].options && firebase.apps[0].options.databaseURL) {
@@ -17,7 +17,7 @@
     return 'https://localstorage-f4705-default-rtdb.firebaseio.com';
   }
 
-  // token alma (varsa)
+  // token alma [all roads lead to rome]
   async function getTokenIfAvailable(){
     try {
       if (window.firebase && firebase.auth && firebase.auth().currentUser) {
@@ -242,7 +242,7 @@
   await loadUsers();
   await loadMessages();
 
-  // expose refresh externally
+  // ÖldüHttp
   window.adminEnhance = window.adminEnhance || {};
   window.adminEnhance.refresh = async ()=>{ await loadUsers(); await loadMessages(); };
   log('admin-enhance loaded. Use window.adminEnhance.refresh() to reload lists.');
