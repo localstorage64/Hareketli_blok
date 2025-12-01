@@ -78,7 +78,7 @@
   header.style.justifyContent = 'space-between';
   header.style.alignItems = 'center';
   header.style.marginBottom = '6px';
-  header.innerHTML = `<div>Admin Panel🦗</div>`;
+  header.innerHTML = `<div>Yönetim Paneli🛡</div>`;
   admin.appendChild(header);
 
   const ctrlBar = document.createElement('div');
@@ -237,7 +237,10 @@
   // attach ctrl events
   refreshBtn.addEventListener('click', ()=>{ loadUsers(); loadMessages(); });
   clearAllBtn.addEventListener('click', clearAllMessages);
-
+  
+  //sürüklenebilir panel [test]
+  //boş?
+  
   // initial load
   await loadUsers();
   await loadMessages();
