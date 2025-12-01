@@ -1,4 +1,4 @@
-
+//main.js [İrfan,İbrahim,Eymen]
 document.addEventListener('DOMContentLoaded', function() {
     createFloatingParticles();
 
@@ -75,7 +75,7 @@ function createFloatingParticles() {
                 const distance = Math.sqrt(dx * dx + dy * dy);
 
                 if (distance < connectionDistance) {
-                    ctx.strokeStyle = `rgba(0, 255, 0, ${(1 - distance / connectionDistance) * 0.6})`;
+                    ctx.strokeStyle = `rgba(255, 255, 0, ${(1 - distance / connectionDistance) * 0.6})`;
                     ctx.lineWidth = 1;
                     ctx.beginPath();
                     ctx.moveTo(p.x, p.y);
