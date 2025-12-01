@@ -96,7 +96,7 @@ async function getUser(name){
 
 async function createUser(name, pw){
   const uname = sanitize(name);
-  if (!validUsername(uname)) throw new Error("Kullanıcı adı 3-30 küçük harf/rakam/_ olmalı");
+  if (!validUsername(uname)) throw new Error("Kullanıcı adı 3-30 harf olmalı");
   const existing = await getUser(uname);
   if (existing) throw new Error("Kullanıcı zaten var");
   const hash = await hashPw(pw);
@@ -142,7 +142,7 @@ signInAnonymously(auth).catch(e=>{
 });
 onAuthStateChanged(auth, u=>{
   anonUser = u;
-  userInfo.textContent = u ? `Bağlı (uid: ${u.uid.slice(0,6)})` : "Anonim değil";
+  userInfo.textContent = u ? `Bağlı (uid: ${u.uid.slice(0,6)})` : "Aktif";
 });
 
 // auth form
@@ -157,6 +157,7 @@ authForm.addEventListener("submit", async (e)=>{
 
   try {
     if (mode === "signup"){
+      document.getElementById("auth-toggle").textContent = "Hesabım var";
       await createUser(name, pw);
       current = { username: sanitize(name) };
       showMsg("Hesap oluşturuldu", false);
