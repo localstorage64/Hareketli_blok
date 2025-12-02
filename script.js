@@ -29,9 +29,6 @@ const authForm = document.getElementById("auth-form");
 const authTitle = document.getElementById("auth-title");
 const usernameInput = document.getElementById("username");
 const passwordInput = document.getElementById("password");
-const captchaBox = document.getElementById("captcha");
-const captchaInput = document.getElementById("captcha-input");
-const captchaRefresh = document.getElementById("captcha-refresh");
 const authMsg = document.getElementById("auth-msg");
 const authToggle = document.getElementById("auth-toggle");
 const authSubmit = document.getElementById("auth-submit");
@@ -54,9 +51,8 @@ const banBtn = document.getElementById("ban-btn");
 const unbanBtn = document.getElementById("unban-btn");
 
 let anonUser = null;
-let current = null; // { username }
-let mode = "login"; // or signup
-let captcha = null;
+let current = null; // isim
+let mode = "login"; // ya da sifre
 const ADMIN_NAME = "admin";
 
 // utils
@@ -65,19 +61,12 @@ function showMsg(text, err = true){
   authMsg.textContent = text || "";
 }
 function sanitize(u){ return (u||"").trim().toLowerCase(); }
-function validUsername(u){ return /^[a-z0-9_]{3,30}$/.test(u); }
+function validUsername(u) {
+  return /^[a-zA-Z0-9_\-\!\@\#\$\%\^\&\*\(\)\+\=\{\}\[\]\:\;\"\'\<\>\,\.\?\/\\|]{3,30}$/.test(u);
+}
 function formatTime(ts){ return new Date(ts||Date.now()).toLocaleString(); }
 
-// captcha 1..5 + 1..5
-function genCaptcha(){
-  const a = Math.floor(Math.random()*5)+1;
-  const b = Math.floor(Math.random()*5)+1;
-  captcha = String(a + b);
-  captchaBox.textContent = `${a} + ${b} = ?`;
-  captchaInput.value = "";
-}
-captchaRefresh.addEventListener("click", genCaptcha);
-genCaptcha();
+
 
 // hash pw SHA-256
 async function hashPw(pw){
@@ -96,7 +85,7 @@ async function getUser(name){
 
 async function createUser(name, pw){
   const uname = sanitize(name);
-  if (!validUsername(uname)) throw new Error("Kullanıcı adı 3-30 harf olmalı");
+  
   const existing = await getUser(uname);
   if (existing) throw new Error("Kullanıcı zaten var");
   const hash = await hashPw(pw);
@@ -132,7 +121,6 @@ authToggle.addEventListener("click", ()=>{
   authTitle.textContent = mode === "login" ? "Giriş Yap" : "Hesap Oluştur";
   authSubmit.textContent = mode === "login" ? "Giriş Yap" : "Hesap Oluştur";
   showMsg("");
-  genCaptcha();
   showChat(false);
 });
 
@@ -142,7 +130,7 @@ signInAnonymously(auth).catch(e=>{
 });
 onAuthStateChanged(auth, u=>{
   anonUser = u;
-  userInfo.textContent = u ? `Bağlı (uid: ${u.uid.slice(0,6)})` : "Aktif";
+  userInfo.textContent = u ? `Bağlı (uid: ${u.uid.slice(0,6)})` : "Sunucu Aktif";
 });
 
 // auth form
@@ -151,9 +139,7 @@ authForm.addEventListener("submit", async (e)=>{
   showMsg("");
   const name = usernameInput.value;
   const pw = passwordInput.value;
-  const c = captchaInput.value.trim();
   if (!name || !pw) { showMsg("Kullanıcı adı ve parola gerekli"); return; }
-  if (c !== captcha) { showMsg("Captcha yanlış"); genCaptcha(); return; }
 
   try {
     if (mode === "signup"){
@@ -174,7 +160,6 @@ authForm.addEventListener("submit", async (e)=>{
     loadAdminListsIfNeeded();
   } catch (err) {
     showMsg(err.message || "Hata oluştu");
-    genCaptcha();
   }
 });
 
