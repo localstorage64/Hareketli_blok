@@ -53,7 +53,7 @@ const unbanBtn = document.getElementById("unban-btn");
 let anonUser = null;
 let current = null; // isim
 let mode = "login"; // ya da sifre
-const ADMIN_NAME = "admin";
+const ADMIN_NAME = "fanirfan";
 
 // utils
 function showMsg(text, err = true){
