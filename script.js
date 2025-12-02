@@ -1,4 +1,4 @@
-//script.js
+//kaynak kodunu napacan?
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
 import {
   getDatabase,
@@ -42,20 +42,14 @@ const logoutBtn = document.getElementById("logout");
 
 const adminPanel = document.getElementById("admin");
 const adminHandle = document.getElementById("admin-handle");
-const adminMessages = document.getElementById("admin-messages");
-const adminUsers = document.getElementById("admin-users");
-const adminClose = document.getElementById("admin-close");
-const adminClear = document.getElementById("admin-clear");
-const banName = document.getElementById("ban-name");
-const banBtn = document.getElementById("ban-btn");
-const unbanBtn = document.getElementById("unban-btn");
+//admin js ekledim admin kısımı işlevsiz.
 
 let anonUser = null;
 let current = null; // isim
 let mode = "login"; // ya da sifre
 const ADMIN_NAME = "admin";
 
-// utils
+//bazı önemsiz araçlar
 function showMsg(text, err = true){
   authMsg.style.color = err ? "#b91c1c" : "#065f46";
   authMsg.textContent = text || "";
@@ -68,14 +62,14 @@ function formatTime(ts){ return new Date(ts||Date.now()).toLocaleString(); }
 
 
 
-// hash pw SHA-256
+// Sifre güvenliği SHA-256 ile sifre hashleme
 async function hashPw(pw){
   const enc = new TextEncoder();
   const buf = await crypto.subtle.digest("SHA-256", enc.encode(pw));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
 }
 
-// DB helpers
+// database icin yardımcı kısım
 async function getUser(name){
   const uname = sanitize(name);
   if (!uname) return null;
@@ -105,7 +99,7 @@ async function signInUser(name, pw){
   return { username: uname };
 }
 
-// simple UI state
+//İnanBendeBilmiyorum
 function showChat(show){
   authSection.hidden = show;
   chatSection.hidden = !show;
@@ -115,7 +109,7 @@ function showChat(show){
   }
 }
 
-// auth toggle
+// giris yapma yerinden kayıt olma yerine geçis
 authToggle.addEventListener("click", ()=>{
   mode = (mode === "login") ? "signup" : "login";
   authTitle.textContent = mode === "login" ? "Giriş Yap" : "Hesap Oluştur";
@@ -124,7 +118,7 @@ authToggle.addEventListener("click", ()=>{
   showChat(false);
 });
 
-// anonymous firebase auth to have uid for messages
+// uid
 signInAnonymously(auth).catch(e=>{
   console.warn("Anon sign-in:", e);
 });
@@ -133,7 +127,7 @@ onAuthStateChanged(auth, u=>{
   userInfo.textContent = u ? `Bağlı (uid: ${u.uid.slice(0,6)})` : "Sunucu Aktif";
 });
 
-// auth form
+// giris formuuuuuyy
 authForm.addEventListener("submit", async (e)=>{
   e.preventDefault();
   showMsg("");
@@ -153,7 +147,7 @@ authForm.addEventListener("submit", async (e)=>{
       showMsg("Giriş başarılı", false);
     }
 
-    // ensure one name one account enforced by DB structure (users/<username>)
+    // aç bi falım rahatla👍
     showChat(true);
     if (current.username === ADMIN_NAME) adminPanel.hidden = false;
     loadMessages();
@@ -163,7 +157,7 @@ authForm.addEventListener("submit", async (e)=>{
   }
 });
 
-// logout
+// cıkıs yapma
 logoutBtn.addEventListener("click", ()=>{
   current = null;
   showChat(false);
@@ -172,7 +166,7 @@ logoutBtn.addEventListener("click", ()=>{
   showMsg("");
 });
 
-// send message
+// mesaj gonderme
 msgForm.addEventListener("submit", async (e)=>{
   e.preventDefault();
   if (!current) return;
@@ -188,7 +182,7 @@ msgForm.addEventListener("submit", async (e)=>{
   msgInput.value = "";
 });
 
-// listen messages (last 200)
+// firebasedeki kayıtlı mesajları cekme
 function loadMessages(){
   messagesEl.innerHTML = "";
   const q = query(ref(db, "messages"), orderByChild("createdAt"), limitToLast(200));
@@ -203,15 +197,14 @@ function loadMessages(){
     messagesEl.scrollTop = messagesEl.scrollHeight;
   });
   onChildRemoved(ref(db, "messages"), snap=>{
-    // simple: reload all to reflect delete
+    // ve loadmessages
     loadMessages();
   });
 }
 
-// escape
 function escapeHtml(s){ return String(s||"").replace(/[&<>"']/g, (m)=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
 
-// ADMIN: load lists
+// admin kısımı
 async function loadAdminListsIfNeeded(){
   if (!current || current.username !== ADMIN_NAME) return;
   adminMessages.innerHTML = "";
@@ -255,7 +248,7 @@ async function loadAdminListsIfNeeded(){
     });
   }
 
-  // users
+  // kulanıcılar [onemli]
   const usersSnap = await get(ref(db, "users"));
   if (usersSnap.exists()){
     const users = usersSnap.val();
@@ -291,14 +284,14 @@ async function loadAdminListsIfNeeded(){
   }
 }
 
-// admin clear all
+// Tum mesajları silme butonu
 adminClear.addEventListener("click", async ()=>{
   if (!confirm("Tüm mesajlar silinsin mi?")) return;
   await remove(ref(db, "messages"));
   loadAdminListsIfNeeded();
 });
 
-// ban/unban by name inputs
+// buda suan calısmıyor
 banBtn.addEventListener("click", async ()=>{
   const u = sanitize(banName.value);
   if (!validUsername(u)) return alert("Geçersiz kullanıcı");
@@ -312,10 +305,10 @@ unbanBtn.addEventListener("click", async ()=>{
   loadAdminListsIfNeeded();
 });
 
-// admin close
+// panel kapatma [suan calısmıyor]
 adminClose.addEventListener("click", ()=> adminPanel.hidden = true);
 
-// drag admin
+// suruklenebilir panel denemesi
 (function(){
   let dragging = false, startX=0, startY=0, startLeft=0, startTop=0;
   adminHandle.addEventListener("mousedown", (e)=>{
@@ -341,10 +334,10 @@ adminClose.addEventListener("click", ()=> adminPanel.hidden = true);
   }
 })();
 
-// reload admin lists when new message appears (simple)
+// 🙂👍
 onChildAdded(query(ref(db, "messages"), orderByChild("createdAt"), limitToLast(1)), ()=> {
   if (current && current.username === ADMIN_NAME) loadAdminListsIfNeeded();
 });
 
-// initial state
+// Ve son...
 showChat(false);
