@@ -1,4 +1,4 @@
-//admin.js
+//İBRAAAAAHAAAAAM
 
 (async function(){
   // --- HELPERS ---
