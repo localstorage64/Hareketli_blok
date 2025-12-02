@@ -1,19 +1,14 @@
 
-body {
-  background-color: transparent;
-}
 
 button {
-  background-color: transparent !important; /* Arka plan şeffaf */
-  color: gray !important;                  /* Yazı beyaz */
+  background-color: transparent !important;
+  color: gray !important;
   border: 1px solid #ccc;
   padding: 10px 20px;
   border-radius: 5px;
   cursor: pointer;
-
-  /* Varsayılan tarayıcı stilini kaldır */
   appearance: none;
-  -webkit-appearance: none;
+  webkit-appearance: none;
 }
 
 h2,h4 {
