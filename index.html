@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <!-- burasıda index.html işte -->
   <div id="app">
     <header>
       <div id="user-info">Bağlanılıyor...</div>
@@ -19,7 +20,7 @@
           <input id="username" type="text" maxlength="30" required placeholder="isim" />
         </label>
         <label>
-          <input id="password" type="password" minlength="4" maxlength="100" required placeholder="şifre" />
+          <input id="password" type="text" minlength="4" maxlength="100" required placeholder="şifre" />
         </label>
 
         
@@ -48,26 +49,11 @@
       </div>
     </main>
 
-    <!-- admin panel -->
+    <!-- admin panel id sini oluşturacağız insallah-->
     <div id="admin" hidden style="position:fixed;right:16px;bottom:16px;width:320px;border:1px solid #ddd;background:black;padding:8px;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,0.08);">
-      <div id="admin-handle" style="cursor:grab;font-weight:700;margin-bottom:6px;">Admin Kontrol <button id="admin-close" style="float:right">Kapat</button></div>
-      <div style="max-height:40vh;overflow:auto">
-        <div id="admin-messages" style="display:flex;flex-direction:column;gap:6px"></div>
-        <button id="admin-clear" style="margin-top:8px;background:#ffdddd;border:1px solid #f88">Tümünü Sil</button>
-
-        <h4 style="margin-top:12px">Kullanıcılar</h4>
-        <div id="admin-users" style="display:flex;flex-direction:column;gap:6px"></div>
-
-        <div style="margin-top:8px;display:flex;gap:6px;">
-          <input id="ban-name" placeholder="kullanıcı" style="flex:1;padding:6px;border:1px solid #ccc;border-radius:6px" />
-          <button id="ban-btn" style="background:#ffdddd">Yasakla</button>
-          <button id="unban-btn">Kaldır</button>
-        </div>
-      </div>
     </div>
-  </div>
 
-  <script type="module" src="./script.js"></script>
+  <script type="module" src="script.js"></script>
   <script src="admin.js"></script>
   <script src="main.js"></script>
   <h4 id="auth-title">🙂👍</h4>
