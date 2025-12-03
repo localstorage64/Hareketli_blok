@@ -1,4 +1,11 @@
 /* günaydın? */
+
+#btnSiyah, #btnLacivert {
+  padding: 8px 12px;
+  width: 120px;
+}
+
+
 button {
   background-color: transparent !important;
   color: gray !important;
@@ -80,4 +87,41 @@ button:focus {
 }
 this.textContent {
   color: gray
+}
+
+/* Ayarlar ksıımı tasarımı */
+#settings {
+  background-color: #0078d7;
+  border: 1px solid #ccc;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 10px 20px;
+  transition: background-color 0.3s ease;
+}
+
+#settings:hover {
+  background-color: transparent;
+}
+
+#settingsPanel {
+  background-color: transparent;
+  border: 1px solid #ccc;
+  padding: 20px;
+  margin-top: 10px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+#settingsPanel h3 {
+  margin-top: 0;
+  color: whitesmoke;
+  font-size: 18px;
+}
+
+#settingsPanel p {
+  color: white;
+  background-color: transparent;
+  font-size: 14px;
 }
