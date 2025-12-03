@@ -3,12 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>NexusChat</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>ChatWorld</title>
 </head>
 <body>
   <!-- burasıda index.html işte -->
-  <div id="app">
+    <div id="app">
     <header>
       <div id="user-info">Bağlanılıyor...</div>
     </header>
@@ -37,6 +36,47 @@
     </section>
 
     <main id="chat" hidden>
+
+<button id="settings">AYARLAR</button>
+      <!-- Ayarrlar -->
+<div id="settingsPanel" style="display:none; border:1px solid #ccc; padding:20px; margin-top:10px;">
+  <h3>Ayarlar</h3>
+  
+  <p>Arka plan rengi</p>
+  <button id="btnSiyah">Siyah</button>
+  <button id="btnLacivert">Lacivert</button>
+</div>
+
+<script>
+  const settingsButton = document.getElementById("settings");
+  const settingsPanel = document.getElementById("settingsPanel");
+
+  settingsButton.addEventListener("click", () => {
+    if (settingsPanel.style.display === "none") {
+      settingsPanel.style.display = "block";
+    } else {
+      settingsPanel.style.display = "none";
+    }
+  });
+
+  // LocalStorage'den rengi cekip uygular
+  const savedColor = localStorage.getItem("selectedColor");
+  if (savedColor) {
+    document.body.style.backgroundColor = savedColor;
+  }
+
+  // Siyah
+  document.getElementById("btnSiyah").onclick = () => {
+    document.body.style.backgroundColor = "black";
+    localStorage.setItem("selectedColor", "black");
+  };
+
+  // Lacivert
+  document.getElementById("btnLacivert").onclick = () => {
+    document.body.style.backgroundColor = "#0A0A23";
+    localStorage.setItem("selectedColor", "#0A0A23");
+  };
+</script>
       <div id="messages" style="height:50vh;overflow:auto;border:1px solid #eee;padding:10px;border-radius:6px;background:transparent"></div>
 
       <form id="msg-form" style="margin-top:10px;display:flex;gap:8px;">
@@ -52,10 +92,10 @@
     <!-- admin panel id sini oluşturacağız insallah-->
     <div id="admin" hidden style="position:fixed;right:16px;bottom:16px;width:320px;border:1px solid #ddd;background:black;padding:8px;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,0.08);">
     </div>
-
   <script type="module" src="script.js"></script>
   <script src="admin.js"></script>
   <script src="main.js"></script>
-  <h4 id="auth-title">🙂👍</h4>
+  <link rel="stylesheet" href="style.css" />
+  <h4 id="auth-title">ChatWorld</h4>
 </body>
 </html>
