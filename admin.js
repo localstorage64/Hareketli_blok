@@ -69,7 +69,7 @@
     document.body.appendChild(admin);
   }
   admin.innerHTML = '';
-
+  
   const header = document.createElement('div');
   header.id = 'admin-handle';
   header.style.fontWeight = '700';
@@ -79,7 +79,7 @@
   header.style.marginBottom = '6px';
   header.innerHTML = `<div>Yönetim Paneli🛡</div>`;
   admin.appendChild(header);
-
+  
   const ctrlBar = document.createElement('div');
   ctrlBar.style.display = 'flex';
   ctrlBar.style.gap = '6px';
@@ -101,6 +101,10 @@
   const msgsEl = document.createElement('div');
   msgsEl.id = 'admin-messages';
   admin.appendChild(msgsEl);
+  
+  const ipContainer = document.createElement("div");
+ipContainer.id = "ip-container";
+admin.appendChild(ipContainer);
 
   // butonda önemli aga
   function makeBtn(text, opts = {}){
